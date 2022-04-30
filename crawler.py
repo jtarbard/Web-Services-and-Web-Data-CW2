@@ -6,7 +6,7 @@ import requests
 import string
 from bs4 import BeautifulSoup
 
-class Index:
+class InvertedIndex:
 
     def __init__(self):
         self.root = ""
@@ -21,7 +21,7 @@ class Index:
     def search(self):
         pass
 
-class IndexHandler:
+class InvertedIndexHandler:
 
     def __init__(self):
         pass
@@ -55,11 +55,16 @@ class Crawler:
         self.handler = handler
 
     def prepSeed(self, seed):
-        if "https" not in seed and "http" not in seed:
-            seed = "https://"+seed
+        strippedSeed = seed.replace("http://", "")
+        strippedSeed = strippedSeed.replace("https://", "")
+
+        self.index.root = strippedSeed.split("/")[0]
+        print("ROOT:"+self.index.root)
+        print("SEED:"+strippedSeed.replace(self.index.root, ""))
+        seed = strippedSeed.replace(self.index.root, "")
 
         try:            
-            req = requests.get(seed)
+            req = requests.get("https://"+seed)
             req.raise_for_status()
             
         except Exception as e:
@@ -70,7 +75,7 @@ class Crawler:
 
     def request(self, url):
         try:
-            req = requests.get(url)
+            req = requests.get("https://"+url)
             req.raise_for_status()
             soup = BeautifulSoup(req.text, "html.parser")
 
@@ -80,6 +85,12 @@ class Crawler:
             print("Request failed:", e)
             exit()
 
+    def enqueue(self, soup):
+        for link in soup.find_all("a"):
+            if "www." in link:
+                continue
+
+            self.index.documents.append(link)
 
     def parse(self, soup):
         try:
@@ -111,14 +122,14 @@ class Crawler:
             
             time.sleep(1)
             
-            soup = self.request(link)
+            soup = self.request("https://"+self.index.root+link)
             self.parse(soup)
 
 
 def main():
     
-    index = Index()
-    handler = IndexHandler()
+    index = InvertedIndex()
+    handler = InvertedIndexHandler()
     crawler = Crawler(index, handler)
 
     if len(sys.argv) == 1:
