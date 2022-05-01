@@ -84,7 +84,7 @@ class Crawler:
             print("Request failed:", e)
             exit()
 
-    async def enqueue(self, soup):
+    def enqueue(self, soup):
         for link in soup.find_all("a"):
             link = link["href"]
 
@@ -98,7 +98,7 @@ class Crawler:
 
             self.index.documents.append(link)
 
-    async def parse(self, soup, docId):
+    def parse(self, soup, docId):
 
         allowed_tags = ["p", "a", "span", "h1", "h2", "h3", "h4", "h5", "h6", "li", "dt", "dd", "td"]
         tags = soup.find_all(allowed_tags, recursive=True)
@@ -118,28 +118,28 @@ class Crawler:
                 self.index.index[text] = {str(docId): 1}
         
         
-    async def crawl(self, link, docId, logging):
+    def crawl(self, link, docId, logging):
         if logging:
                 print(link, end="\n")
             
         soup = self.soup("http://"+self.index.root+link)
-        await self.enqueue(soup)
-        # await self.parse(soup, docId) 
+        self.enqueue(soup)
+        self.parse(soup, docId) 
 
-    async def start(self, rawSeed, logging=None):
+    def start(self, rawSeed, logging=None):
 
         self.seed = self.prepSeed(rawSeed)
         self.index.documents.append(self.seed)
         docId = len(self.index.documents)
         
         for link in self.index.documents:
-            await self.crawl(link, docId, logging)
+            self.crawl(link, docId, logging)
             time.sleep(1)
 
         self.handler.save(self.index)
 
 
-async def main():
+def main():
     
     index = InvertedIndex()
     handler = InvertedIndexHandler()
@@ -157,12 +157,12 @@ async def main():
         index = handler.load()
     elif  sys.argv[1] == "build":
         if len(sys.argv) > 3:
-            await crawler.start(sys.argv[2], sys.argv[3])
+            crawler.start(sys.argv[2], sys.argv[3])
         else:
-            await crawler.start(sys.argv[2])
+            crawler.start(sys.argv[2])
     else:
         print("Unknown command, must be one of: 'build', 'load', 'print', or 'find'.")
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
