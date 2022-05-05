@@ -69,12 +69,22 @@ class InvertedIndex:
                 )
             
 
-    def print(self):
-        for posting in self.postings:
-            print(
-                f"{posting: <30}    " +
-                str(self.postings.get(posting)).replace('{','').replace('}','').replace(': ',':')
-                )
+    def print(self, term=None):
+        if term:
+            posting = self.postings.get(term)
+            if posting:
+                print(
+                    f"{term: <30}    " +
+                    str(self.postings.get(term)).replace('{','').replace('}','').replace(': ',':')
+                    )
+            else:
+                print(f"No results found containing '{term}'.")
+        else:
+            for posting in self.postings:
+                print(
+                    f"{posting: <30}    " +
+                    str(self.postings.get(posting)).replace('{','').replace('}','').replace(': ',':')
+                    )
 
 
 class InvertedIndexHandler:
