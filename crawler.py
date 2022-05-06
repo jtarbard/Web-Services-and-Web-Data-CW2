@@ -204,7 +204,7 @@ class Crawler:
                         self.frontier.append(parse.urljoin(self.root, link))
 
         except requests.exceptions.HTTPError as e:
-            if req.status_code == 429:
+            if req.status_code == 429 and self.delay > 0:
                 print("Too many requests response recieved, increasing delay.")
                 self.delay += 1
                 time.sleep(self.delay)
@@ -238,7 +238,7 @@ def main():
     command = None
 
     while command != "exit":
-        command = input("\nCommand: ")
+        command = input("\nCommand: ").lower().strip()
 
         if command == "build":
             arguments = input("Argument(s): ").split()
