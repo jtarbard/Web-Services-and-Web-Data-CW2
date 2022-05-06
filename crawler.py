@@ -205,7 +205,6 @@ class Crawler:
 
         except requests.exceptions.HTTPError as e:
             if req.status_code == 429 and self.delay > 0:
-                print("Too many requests response recieved, increasing delay.")
                 self.delay += 1
                 time.sleep(self.delay)
 
