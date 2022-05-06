@@ -1,3 +1,4 @@
+from ast import arg
 import os
 import sys
 import time
@@ -18,7 +19,9 @@ class InvertedIndex:
         self.postings = {}  # {"posting": {0:1, 1:1, 2:3}}
 
     def search(self, search_terms):
-
+        if self.postings == {}:
+            print("Inverted index is empty.")
+            return -1
 
         # Check against search term conditions
         if type(search_terms) != list:
@@ -28,7 +31,8 @@ class InvertedIndex:
             
         for term in search_terms:
             if len(term) < 2:
-                sys.exit(f"Search terms of length less than two, '{term}', not accepted.")
+                print(f"Search terms of length less than two, '{term}', not accepted.")
+                return -1
         
 
         # Obtain search results
@@ -43,7 +47,8 @@ class InvertedIndex:
                 search_results[term] = result
                 search_successes.append(term)
             else:
-                sys.exit(f"No results found containing '{term}'.")
+                print(f"No results found containing '{term}'.")
+                return -1
             
 
         for doc_id in search_results.get(search_successes[0]):
@@ -70,6 +75,10 @@ class InvertedIndex:
             
 
     def print(self, term=None):
+        if self.postings == {}:
+            print("Inverted index is empty.")
+            return -1
+
         if term:
             posting = self.postings.get(term)
             if posting:
@@ -136,7 +145,7 @@ class Crawler:
             self.delay = parser.crawl_delay("")
 
         except Exception as e:
-            print("Robots.txt could not be found.", e)
+            pass
             
 
     def parse(self, soup, docId):
@@ -207,7 +216,7 @@ class Crawler:
     def run(self, seed, polite=True):
 
         self.root = seed
-        if polite:
+        if polite == True:
             self.robots()
         self.frontier.append("/")
         start = time.time()
@@ -225,6 +234,46 @@ def main():
     index = InvertedIndex()
     handler = InvertedIndexHandler()
     crawler = Crawler(index, handler)
+
+    command = None
+
+    while command != "exit":
+        command = input("\nCommand: ")
+
+        if command == "build":
+            arguments = input("Argument(s): ").split()
+            if arguments:
+                if len(arguments) > 1:
+                    crawler.run(arguments[0], arguments[1])
+                else:
+                    crawler.run(arguments[0])
+            else:
+                print("Building inverted index requires a seed as an argument.")
+                    
+        elif command == "load":
+            index = handler.load()
+            print("Load Complete.")
+
+        elif command == "print":
+            arguments = input("Argument(s): ").split()
+            if arguments:
+                index.print(arguments[0])
+            else:
+                index.print()
+
+        elif command == "find":
+            arguments = input("Argument(s): ").split()
+            if arguments:
+                index.search(arguments)
+            else:
+                print("Find requires search terms as an argument.")
+
+        elif command == "exit":
+            pass
+
+        else:
+            print("Invalid command. Accepted commands:'build', 'load', 'print', 'find', or 'exit'.")
+
 
 
 if __name__ == "__main__":
