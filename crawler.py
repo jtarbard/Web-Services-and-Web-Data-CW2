@@ -1,12 +1,8 @@
-from ast import arg
-import os
-import sys
 import time
 import pickle
 from urllib.error import HTTPError
 from urllib import robotparser, parse
 import requests
-import random
 from bs4 import BeautifulSoup
 import string
 
