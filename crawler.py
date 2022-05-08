@@ -62,12 +62,12 @@ class InvertedIndex:
                         else:
                             scores[self.documents[doc_id]] = self.postings[term][doc_id]
 
-                count = 0
+                count = 1
                 while scores != {}:
                     doc = max(scores, key=scores.get)
                     score = scores.pop(doc)
-                    print(f"{count}. {doc}")
-                    print(f"Relevence Score: {score}, Occurances: {str(results[doc]).replace('{','').replace('}','')}\n")
+                    print(f"\n{count}. {doc}")
+                    print(f"Relevence Score: {score}, Occurances: {str(results[doc]).replace('{','').replace('}','')}")
                     count += 1
 
             
@@ -240,10 +240,12 @@ def main():
     command = None
 
     while command != "exit":
-        command = input("\nCommand: ").lower().strip()
+        command = input("\nCommand: ").split()
+        if len(command) > 1:
+            arguments = command[1:]
+        command = command[0]
 
         if command == "build":
-            arguments = input("Argument(s): ").split()
             if arguments:
                 if len(arguments) > 1:
                     crawler.run(arguments[0], arguments[1])
@@ -257,14 +259,12 @@ def main():
             print("Load Complete.")
 
         elif command == "print":
-            arguments = input("Argument(s): ").split()
             if arguments:
                 index.print(arguments[0])
             else:
                 index.print()
 
         elif command == "find":
-            arguments = input("Argument(s): ").split()
             if arguments:
                 index.search(arguments)
             else:
