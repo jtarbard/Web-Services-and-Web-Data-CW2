@@ -85,18 +85,12 @@ class InvertedIndex:
         if term:
             posting = self.postings.get(term)
             if posting:
-                print(
-                    f"{term: <30}    " +
-                    str(self.postings.get(term)).replace('{','').replace('}','').replace(': ',':')
-                    )
+                print(f"{term: <30} {str(self.postings.get(term)).replace('{','').replace('}','').replace(': ',':')}")
             else:
                 print(f"No results found containing '{term}'.")
         else:
             for posting in self.postings:
-                print(
-                    f"{posting: <30}    " +
-                    str(self.postings.get(posting)).replace('{','').replace('}','').replace(': ',':')
-                    )
+                print(f"{posting: <30} {str(self.postings.get(posting)).replace('{','').replace('}','').replace(': ',':')}\n")
 
 
 class InvertedIndexHandler:
@@ -241,6 +235,7 @@ def main():
 
     while command != "exit":
         command = input("\nCommand: ").split()
+        arguments = []
         if len(command) > 1:
             arguments = command[1:]
         command = command[0]
