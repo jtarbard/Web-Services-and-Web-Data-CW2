@@ -23,56 +23,59 @@ class InvertedIndex:
             print("Inverted index is empty.")
             return -1
 
-        # Check against search term conditions
         if type(search_terms) != list:
             tmp = search_terms
             search_terms = []
             search_terms.append(tmp)
+
+        valid_terms = True
+        for term in search_terms:
+            if self.postings.get(term) is None:
+                valid_terms = False
+                print(f"Search term '{term}' could not be found in any documents.")
+
+        if valid_terms == True:
+            unvalid_docs = []
+            for i in range(len(search_terms)):
+                term = search_terms[i]
+                
+                if i == 0:
+                    valid_docs = list(self.postings[term].keys())
+                else:
+                    for doc_id in valid_docs.copy():
+                        if doc_id not in self.postings[term].keys():
+                            valid_docs.remove(doc_id)
             
-        for term in search_terms:
-            if len(term) < 2:
-                print(f"Search terms of length less than two, '{term}', not accepted.")
-                return -1
-        
+            if valid_docs != []:
+                results = {}
+                scores = {}
+                for doc_id in valid_docs:
+                    for term in search_terms:
+                        if results.get(self.documents[doc_id]):
+                            results[self.documents[doc_id]][term] = self.postings[term][doc_id]
+                        else:
+                            results[self.documents[doc_id]] = {}
+                            results[self.documents[doc_id]][term] = self.postings[term][doc_id]
 
-        # Obtain search results
-        search_results = {}
-        search_successes = []
-        output = {}
+                        if scores.get(self.documents[doc_id]):
+                            scores[self.documents[doc_id]] += self.postings[term][doc_id]
+                        else:
+                            scores[self.documents[doc_id]] = self.postings[term][doc_id]
 
-        for term in search_terms:
-            result = self.postings.get(term)
+                count = 0
+                while scores != {}:
+                    doc = max(scores, key=scores.get)
+                    score = scores.pop(doc)
+                    print(f"{count}. {doc}")
+                    print(f"Relevence Score: {score}, Occurances: {str(results[doc]).replace('{','').replace('}','')}\n")
+                    count += 1
 
-            if result:
-                search_results[term] = result
-                search_successes.append(term)
+            
             else:
-                print(f"No results found containing '{term}'.")
-                return -1
-            
-
-        for doc_id in search_results.get(search_successes[0]):
-            found = True    
-            result = {}
-            for term in search_results:
-                if doc_id not in search_results.get(term).keys():
-                    found = False
-                result[term] = search_results.get(term).get(doc_id)
-            
-            if found: 
-                output[self.documents[doc_id]] =  result
+                print(f"No documents that contain all search terms could be found.")
 
 
-        # Display search results
-        for doc in output:
-            print(
-                "\n" +
-                doc +
-                "\n" +
-                "Search term occurences - " + 
-                str(output.get(doc)).replace("{", "").replace("}", "")
-                )
-            
+
 
     def print(self, term=None):
         if self.postings == {}:
