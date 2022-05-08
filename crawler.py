@@ -75,8 +75,6 @@ class InvertedIndex:
                 print(f"No documents that contain all search terms could be found.")
 
 
-
-
     def print(self, term=None):
         if self.postings == {}:
             print("Inverted index is empty.")
@@ -113,12 +111,6 @@ class InvertedIndexHandler:
 
         except Exception as e:
             print("Loading index failed:", e)
-
-    def remove(self):
-        if os.path.exists("index.pkl"):
-            os.remove("index.pkl")
-        else:
-            print("Index file could not be deleted as it does not exist.")
 
 
 class Crawler:
@@ -238,7 +230,7 @@ def main():
         arguments = []
         if len(command) > 1:
             arguments = command[1:]
-        command = command[0]
+        command = command[0].lower()
 
         if command == "build":
             if arguments:
